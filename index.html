@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculadora PWA</title>
+  <title>Generador de Contraseñas</title>
+
+  <!-- Manifest y Favicon -->
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon-192.png" type="image/png" />
   <meta name="theme-color" content="#0d6efd" />
@@ -11,132 +13,123 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      background-color: #f2f2f2;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
       margin: 0;
     }
 
-    .calculator {
-      background: #fff;
+    .container {
+      background: white;
+      padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      padding: 20px;
-      width: 300px;
-    }
-
-    .display {
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      max-width: 400px;
       width: 100%;
-      height: 60px;
-      background: #222;
-      color: #fff;
-      font-size: 2em;
-      text-align: right;
-      padding: 10px;
-      box-sizing: border-box;
-      border-radius: 5px;
-      margin-bottom: 10px;
+      text-align: center;
     }
 
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+    h1 {
+      margin-bottom: 20px;
+      color: #0d6efd;
+    }
+
+    input[type="number"] {
+      width: 60px;
+      padding: 5px;
+      font-size: 1em;
+    }
+
+    .options {
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .options label {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .password {
+      font-family: monospace;
+      font-size: 1.2em;
+      padding: 10px;
+      background: #e9ecef;
+      border-radius: 5px;
+      margin-top: 10px;
+      word-break: break-all;
     }
 
     button {
-      font-size: 1.2em;
-      padding: 15px;
+      background-color: #0d6efd;
+      color: white;
       border: none;
+      padding: 10px 20px;
       border-radius: 5px;
-      background: #e0e0e0;
+      font-size: 1em;
       cursor: pointer;
-      transition: background 0.2s;
+      margin-top: 10px;
     }
 
     button:hover {
-      background: #ccc;
-    }
-
-    button.operator {
-      background: #0d6efd;
-      color: white;
-    }
-
-    button.clear {
-      background: #dc3545;
-      color: white;
-    }
-
-    button.equal {
-      background: #28a745;
-      color: white;
-      grid-column: span 2;
+      background-color: #0b5ed7;
     }
   </style>
 </head>
 <body>
-  <div class="calculator">
-    <div id="display" class="display">0</div>
-    <div class="buttons">
-      <button class="clear">C</button>
-      <button class="operator">/</button>
-      <button class="operator">*</button>
-      <button class="operator">-</button>
-      <button>7</button>
-      <button>8</button>
-      <button>9</button>
-      <button class="operator">+</button>
-      <button>4</button>
-      <button>5</button>
-      <button>6</button>
-      <button>1</button>
-      <button>2</button>
-      <button>3</button>
-      <button class="equal">=</button>
-      <button>0</button>
-      <button>.</button>
+  <div class="container">
+    <h1>Generador de Contraseñas</h1>
+
+    <div class="options">
+      <label>
+        Longitud:
+        <input type="number" id="length" value="12" min="4" max="64" />
+      </label>
+      <label><input type="checkbox" id="uppercase" checked /> Incluir mayúsculas</label>
+      <label><input type="checkbox" id="lowercase" checked /> Incluir minúsculas</label>
+      <label><input type="checkbox" id="numbers" checked /> Incluir números</label>
+      <label><input type="checkbox" id="symbols" checked /> Incluir símbolos</label>
     </div>
+
+    <button onclick="generatePassword()">Generar contraseña</button>
+
+    <div class="password" id="result">Tu contraseña aparecerá aquí</div>
   </div>
 
   <script>
-    let display = document.getElementById('display');
-    let buttons = document.querySelectorAll('button');
-    let currentInput = '';
-    let resetNext = false;
+    function generatePassword() {
+      const length = parseInt(document.getElementById('length').value);
+      const useUppercase = document.getElementById('uppercase').checked;
+      const useLowercase = document.getElementById('lowercase').checked;
+      const useNumbers = document.getElementById('numbers').checked;
+      const useSymbols = document.getElementById('symbols').checked;
 
-    buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        const value = button.textContent;
+      const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+      const numberChars = "0123456789";
+      const symbolChars = "!@#$%^&*()_+~`|}{[]:;?><,./-=";
 
-        if (button.classList.contains('clear')) {
-          currentInput = '';
-          display.textContent = '0';
-          return;
-        }
+      let charSet = '';
+      if (useUppercase) charSet += uppercaseChars;
+      if (useLowercase) charSet += lowercaseChars;
+      if (useNumbers) charSet += numberChars;
+      if (useSymbols) charSet += symbolChars;
 
-        if (button.classList.contains('equal')) {
-          try {
-            currentInput = eval(currentInput).toString();
-          } catch {
-            currentInput = 'Error';
-          }
-          display.textContent = currentInput;
-          resetNext = true;
-          return;
-        }
+      if (charSet === '') {
+        document.getElementById('result').textContent = 'Selecciona al menos un tipo de carácter.';
+        return;
+      }
 
-        if (resetNext) {
-          currentInput = '';
-          resetNext = false;
-        }
+      let password = '';
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charSet.length);
+        password += charSet[randomIndex];
+      }
 
-        currentInput += value;
-        display.textContent = currentInput;
-      });
-    });
+      document.getElementById('result').textContent = password;
+    }
 
     // Registrar service worker
     if ('serviceWorker' in navigator) {
